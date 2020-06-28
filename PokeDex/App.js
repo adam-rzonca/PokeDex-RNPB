@@ -14,40 +14,38 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 import {fetchPokemonsList} from './apiService';
 import {useDebounce} from './hooks/useDebounce';
+import {useAsyncStorage} from './hooks/useAsyncStorage';
 import {ListHeader} from './components/ListHeader';
+import {ListItem} from './components/ListItem';
+
+const PokeListKey = '@pokedex_List';
 
 const App = () => {
   const [data, setData] = useState([]);
-  const [source, setSource] = useState(null);
+  const [source, setSource] = useAsyncStorage(PokeListKey);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const list = await AsyncStorage.getItem('@pokeDexList');
+      const list = await AsyncStorage.getItem(PokeListKey);
 
       if (list == null) {
         const response = await fetchPokemonsList();
-        setData(response.results);
-        const stringifiedValue = JSON.stringify(response.results);
-        await AsyncStorage.setItem('@pokeDexList', stringifiedValue);
         setSource(response.results);
-      } else {
-        const parsedValue = JSON.parse(list);
-        setSource(parsedValue);
-        setData(parsedValue);
       }
+      setData(source);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const refreshPokemonsList = async () => {
     setIsRefreshing(true);
     const response = await fetchPokemonsList();
-    const stringifiedValue = JSON.stringify(response.results);
-    await AsyncStorage.setItem('@pokeDexList', stringifiedValue);
-    setSource(response.results);
-    setData(response.results);
+    console.log(response.results);
+    await setSource(response.results);
+    setData(source);
     setIsRefreshing(false);
   };
 
@@ -77,6 +75,7 @@ const App = () => {
       <StatusBar barStyle={barStyle} backgroundColor="black" />
       <SafeAreaView style={styles.appContainer}>
         <FlatList
+          windowSize={5}
           onRefresh={refreshPokemonsList}
           refreshing={isRefreshing}
           ListHeaderComponent={<ListHeader onChange={setSearchTerm} />}
@@ -85,15 +84,7 @@ const App = () => {
           keyExtractor={(item, index) => item.name + index}
           renderItem={({item, index}) => {
             return (
-              <TouchableOpacity
-                onPress={() => Alert.alert(item.name, item.url)}
-                key={index}
-                style={[
-                  styles.itemContainer,
-                  isRefreshing && styles.disableItemContainer,
-                ]}>
-                <Text style={styles.text}>{item.name}</Text>
-              </TouchableOpacity>
+              <ListItem item={item} index={index} isRefreshing={isRefreshing} />
             );
           }}
         />
