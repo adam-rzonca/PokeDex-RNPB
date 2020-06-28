@@ -4,11 +4,7 @@ import {View, TextInput} from 'react-native';
 export const ListHeader = props => {
   return (
     <View>
-      <TextInput
-        placeholder="Search"
-        value={props.value}
-        onChangeText={props.onChangeText}
-      />
+      <TextInput placeholder="search" onChangeText={props.onChange} />
     </View>
   );
 };
