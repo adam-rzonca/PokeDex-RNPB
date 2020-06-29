@@ -13,7 +13,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'react-native-fetch-blob';
 
 import {fetchPokemon} from '../apiService';
-import {useAsyncStorage} from '../hooks/useAsyncStorage';
+
+const PokemonKey = '@pokedex_Pokemon_';
 
 export const ListItem = ({navigation, item, index, isRefreshing}) => {
   const [pokemon, setPokemon] = useState(null);
@@ -25,25 +26,33 @@ export const ListItem = ({navigation, item, index, isRefreshing}) => {
     (async () => {
       //   const response = await fetchPokemon(item.url, signal);
       if (item) {
-        console.log(item.url);
+        const key = PokemonKey + item.url;
+        let storedPokemon = await AsyncStorage.getItem(key);
 
-        const response = await fetchPokemon(item.url);
+        if (storedPokemon == null) {
+          const response = await fetchPokemon(item.url);
 
-        // const base64Image = await ImgToBase64.getBase64String(
-        //   response.sprites.front_default,
-        // );
+          // const base64Image = await ImgToBase64.getBase64String(
+          //   response.sprites.front_default,
+          // );
 
-        const result = await RNFetchBlob.fetch(
-          'GET',
-          response.sprites.front_default,
-        );
+          const result = await RNFetchBlob.fetch(
+            'GET',
+            response.sprites.front_default,
+          );
 
-        const base64Image = result.data;
-        console.log(base64Image);
+          const base64Image = result.data;
+          response.base64Image = base64Image;
 
-        response.base64Image = base64Image;
+          storedPokemon = response;
+          await AsyncStorage.setItem(key, JSON.stringify(storedPokemon));
+          console.log(item.name, 'saved');
+        } else {
+          storedPokemon = JSON.parse(storedPokemon);
+          console.log(item.name, 'loaded');
+        }
 
-        setPokemon(response);
+        setPokemon(storedPokemon);
       }
     })();
     // return () => controller.abort();
