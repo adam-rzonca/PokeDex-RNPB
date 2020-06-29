@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {fetchPokemon} from '../apiService';
 
-export const ListItem = ({item, index, isRefreshing}) => {
+export const ListItem = ({navigation, item, index, isRefreshing}) => {
   const [pokemon, setPokemon] = useState(null);
   useEffect(() => {
     // const controller = new AbortController();
@@ -42,7 +42,8 @@ export const ListItem = ({item, index, isRefreshing}) => {
 
   return (
     <TouchableOpacity
-      onPress={() => Alert.alert(item.name, item.url)}
+      onPress={() => navigation.navigate('Details')}
+      //onPress={() => Alert.alert(item.name, item.url)}
       key={index}
       style={[
         styles.itemContainer,
