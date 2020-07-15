@@ -26,10 +26,8 @@ function App() {
           tabBarIcon: ({color}) => {
             let imageUrl;
             if (route.name === 'Home') {
-              console.log('Home', color);
               imageUrl = require('./images/home.png');
             } else {
-              console.log('Berries', color);
               imageUrl = require('./images/berries.png');
             }
 

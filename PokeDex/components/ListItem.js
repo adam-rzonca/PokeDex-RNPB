@@ -15,47 +15,43 @@ import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'react-native-fetch-blob';
 
 import {fetchPokemon} from '../apiService';
+import {useAsyncStorage} from '../hooks/useAsyncStorage';
 
 const PokemonKey = '@pokedex_Pokemon_';
 
 export const ListItem = ({navigation, item, index, isRefreshing}) => {
+  const key = PokemonKey + item.name;
+
   const [pokemon, setPokemon] = useState(null);
+  const [pokemonSource, setPokemonSource] = useAsyncStorage(key);
 
   useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-
     (async () => {
-      if (item) {
-        const key = PokemonKey + item.name;
-        let storedPokemon = await AsyncStorage.getItem(key);
+      const controller = new AbortController();
+      const signal = controller.signal;
 
-        if (storedPokemon == null) {
-          const response = await fetchPokemon(item.url, signal);
+      let storedPokemon = await AsyncStorage.getItem(key);
 
-          const result = await RNFetchBlob.fetch(
-            'GET',
-            response.sprites.front_default,
-          );
+      if (storedPokemon == null) {
+        const response = await fetchPokemon(item.url, signal);
 
-          const base64Image = result.data;
-          response.base64Image = base64Image;
+        const result = await RNFetchBlob.fetch(
+          'GET',
+          response.sprites.front_default,
+        );
 
-          storedPokemon = response;
-          await AsyncStorage.setItem(key, JSON.stringify(storedPokemon));
-          //console.log(item.name, 'saved');
-        } else {
-          storedPokemon = JSON.parse(storedPokemon);
-          //console.log(item.name, 'loaded');
-        }
+        const base64Image = result.data;
+        response.base64Image = base64Image;
 
-        setPokemon(storedPokemon);
-
-        return () => controller.abort();
+        storedPokemon = response;
+        setPokemonSource(storedPokemon);
       }
+
+      setPokemon(pokemonSource);
+
+      return () => controller.abort();
     })();
-    // return () => controller.abort();
-  }, [item]);
+  }, [pokemonSource]);
 
   const renderDetails = () => {
     if (!pokemon) {
@@ -75,7 +71,7 @@ export const ListItem = ({navigation, item, index, isRefreshing}) => {
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate('Details')}
+      onPress={() => navigation.navigate('Details', {name: pokemon.name})}
       //onPress={() => Alert.alert(item.name, item.url)}
       key={index}
       style={[
