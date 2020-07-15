@@ -30,9 +30,7 @@ function App() {
             } else {
               imageUrl = require('./images/berries.png');
             }
-
-            // Poczytać o SVG, bo on może wyszarzać
-
+            // Zapytać o tintColor...
             return <Image source={imageUrl} tintColor={color} />;
           },
         })}

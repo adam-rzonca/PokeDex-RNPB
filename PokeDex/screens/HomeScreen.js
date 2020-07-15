@@ -2,12 +2,9 @@ import React, {useEffect, useState, useCallback} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
-  Text,
   StatusBar,
   Platform,
   FlatList,
-  TouchableOpacity,
-  Alert,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-community/async-storage';
