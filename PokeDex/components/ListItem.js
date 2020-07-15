@@ -9,6 +9,8 @@ import {
   //   AbortController,
 } from 'react-native';
 
+import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only';
+
 import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'react-native-fetch-blob';
 
@@ -20,21 +22,16 @@ export const ListItem = ({navigation, item, index, isRefreshing}) => {
   const [pokemon, setPokemon] = useState(null);
 
   useEffect(() => {
-    // const controller = new AbortController();
-    // const signal = controller.signal;
+    const controller = new AbortController();
+    const signal = controller.signal;
 
     (async () => {
-      //   const response = await fetchPokemon(item.url, signal);
       if (item) {
-        const key = PokemonKey + item.url;
+        const key = PokemonKey + item.name;
         let storedPokemon = await AsyncStorage.getItem(key);
 
         if (storedPokemon == null) {
-          const response = await fetchPokemon(item.url);
-
-          // const base64Image = await ImgToBase64.getBase64String(
-          //   response.sprites.front_default,
-          // );
+          const response = await fetchPokemon(item.url, signal);
 
           const result = await RNFetchBlob.fetch(
             'GET',
@@ -46,17 +43,19 @@ export const ListItem = ({navigation, item, index, isRefreshing}) => {
 
           storedPokemon = response;
           await AsyncStorage.setItem(key, JSON.stringify(storedPokemon));
-          console.log(item.name, 'saved');
+          //console.log(item.name, 'saved');
         } else {
           storedPokemon = JSON.parse(storedPokemon);
-          console.log(item.name, 'loaded');
+          //console.log(item.name, 'loaded');
         }
 
         setPokemon(storedPokemon);
+
+        return () => controller.abort();
       }
     })();
     // return () => controller.abort();
-  }, []);
+  }, [item]);
 
   const renderDetails = () => {
     if (!pokemon) {

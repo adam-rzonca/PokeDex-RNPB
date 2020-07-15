@@ -43,7 +43,6 @@ export const HomeScreen = ({navigation}) => {
   const refreshPokemonsList = async () => {
     setIsRefreshing(true);
     const response = await fetchPokemonsList();
-    console.log(response.results);
     await setSource(response.results);
     setData(source);
     setIsRefreshing(false);

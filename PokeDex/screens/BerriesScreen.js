@@ -1,11 +1,10 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 
-export const DetailsScreen = () => {
+export const BerriesScreen = () => {
   return (
     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>Details Screen</Text>
-      Nazwa grafika i statsy
+      <Text>Berries Screen dane z endpointa w postaci flatlist</Text>
     </View>
   );
 };
