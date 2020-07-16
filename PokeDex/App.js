@@ -5,6 +5,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {HomeScreen} from './screens/HomeScreen';
 import {DetailsScreen} from './screens/DetailsScreen';
 import {BerriesScreen} from './screens/BerriesScreen';
+import {BerryDetails} from './screens/BerryDetails';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Image} from 'react-native';
 
@@ -15,6 +16,13 @@ const HomeStack = () => (
   <Stack.Navigator>
     <Stack.Screen name="Home" component={HomeScreen} />
     <Stack.Screen name="Details" component={DetailsScreen} />
+  </Stack.Navigator>
+);
+
+const BerriesStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen name="Berries" component={BerriesScreen} />
+    <Stack.Screen name="Details" component={BerryDetails} />
   </Stack.Navigator>
 );
 
@@ -36,7 +44,7 @@ function App() {
         })}
         tabBarOptions={{activeTintColor: 'black', inactiveTintColor: 'gray'}}>
         <Tab.Screen name="Home" component={HomeStack} />
-        <Tab.Screen name="Berries" component={BerriesScreen} />
+        <Tab.Screen name="Berries" component={BerriesStack} />
       </Tab.Navigator>
     </NavigationContainer>
   );

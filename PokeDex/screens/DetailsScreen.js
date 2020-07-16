@@ -10,8 +10,6 @@ export const DetailsScreen = ({route}) => {
   const {name} = route.params;
   const [pokemonSource, setPokemonSource] = useAsyncStorage(PokemonKey + name);
 
-  console.log(pokemonSource?.stats);
-
   if (!pokemonSource) return <ActivityIndicator />;
   return (
     <View style={styles.container}>

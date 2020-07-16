@@ -15,61 +15,37 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import {fetchData} from '../apiService';
 import {useAsyncStorage} from '../hooks/useAsyncStorage';
 
-const PokemonKey = '@pokedex_Pokemon_';
+const BerryKey = '@pokedex_Berry_';
 
-export const ListItem = ({navigation, item, index, isRefreshing}) => {
-  const key = PokemonKey + item.name;
+export const BerryItem = ({navigation, item, index, isRefreshing}) => {
+  const key = BerryKey + item.name;
 
-  const [pokemon, setPokemon] = useState(null);
-  const [pokemonSource, setPokemonSource] = useAsyncStorage(key);
+  const [berry, setBerry] = useState(null);
+  const [berrySource, setBerrySource] = useAsyncStorage(key);
 
   useEffect(() => {
     (async () => {
       const controller = new AbortController();
       const signal = controller.signal;
 
-      let storedPokemon = await AsyncStorage.getItem(key);
+      let storedBerry = await AsyncStorage.getItem(key);
 
-      if (storedPokemon == null) {
+      if (storedBerry == null) {
         const response = await fetchData(item.url, signal);
 
-        const result = await RNFetchBlob.fetch(
-          'GET',
-          response.sprites.front_default,
-        );
-
-        const base64Image = result.data;
-        response.base64Image = base64Image;
-
-        storedPokemon = response;
-        setPokemonSource(storedPokemon);
+        storedBerry = response;
+        setBerrySource(storedBerry);
       }
 
-      setPokemon(pokemonSource);
+      setBerry(berrySource);
 
       return () => controller.abort();
     })();
-  }, [pokemonSource]);
-
-  const renderDetails = () => {
-    if (!pokemon) {
-      return <ActivityIndicator size="small" />;
-    }
-    return (
-      <>
-        <Image
-          style={styles.image}
-          //source={{uri: pokemon.sprites.front_default}}
-          source={{uri: `data:image/png;base64,${pokemon.base64Image}`}}
-        />
-        <Text>{pokemon.id}</Text>
-      </>
-    );
-  };
+  }, [berrySource]);
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate('Details', {name: pokemon.name})}
+      onPress={() => navigation.navigate('Details', {name: berry.name})}
       //onPress={() => Alert.alert(item.name, item.url)}
       key={index}
       style={[
@@ -77,7 +53,6 @@ export const ListItem = ({navigation, item, index, isRefreshing}) => {
         isRefreshing && styles.disableItemContainer,
       ]}>
       <Text style={styles.text}>{item.name}</Text>
-      {renderDetails()}
     </TouchableOpacity>
   );
 };

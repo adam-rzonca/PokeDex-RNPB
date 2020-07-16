@@ -9,13 +9,16 @@ import {
 
 import AsyncStorage from '@react-native-community/async-storage';
 
-import {fetchPokemonsList} from '../apiService';
+import {fetchData} from '../apiService';
 import {useDebounce} from '../hooks/useDebounce';
 import {useAsyncStorage} from '../hooks/useAsyncStorage';
 import {ListHeader} from '../components/ListHeader';
 import {ListItem} from '../components/ListItem';
 
+import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only';
+
 const PokeListKey = '@pokedex_List';
+const url = 'https://pokeapi.co/api/v2/pokemon?limit=50';
 
 export const HomeScreen = ({navigation}) => {
   const [data, setData] = useState([]);
@@ -26,20 +29,25 @@ export const HomeScreen = ({navigation}) => {
 
   useEffect(() => {
     (async () => {
+      const controller = new AbortController();
+      const signal = controller.signal;
+
       const list = await AsyncStorage.getItem(PokeListKey);
 
       if (list == null) {
-        const response = await fetchPokemonsList();
+        const response = await fetchData(url, signal);
         setSource(response.results);
       }
       setData(source);
+
+      return () => controller.abort();
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const refreshPokemonsList = async () => {
     setIsRefreshing(true);
-    const response = await fetchPokemonsList();
+    const response = await fetchData(url);
     await setSource(response.results);
     setData(source);
     setIsRefreshing(false);
